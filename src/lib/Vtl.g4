@@ -7,7 +7,7 @@
 // Since 2.0:
 //  - add RANDOM operator
 //  - add CASE operator
-//  - add time operators: dateDiffAtom, dateAddAtom, yearAtom, monthAtom, dayOfMonthAtom, datOfYearAtom, dayToYearAtom, dayToMonthAtom, yearTodayAtom, monthTodayAtom
+//  - add time operators: dateDiffAtom, dateAddAtom, yearAtom, monthAtom, dayOfMonthAtom, dayOfYearAtom, dayToYearAtom, dayToMonthAtom, yearTodayAtom, monthTodayAtom
 
 grammar Vtl;
 import VtlTokens;
@@ -195,8 +195,7 @@ stringOperators:
 //;
 
 numericOperators:
-    op=RANDOM LPAREN (optionalExpr)? RPAREN                                                     # optionalNumeric
-    | op=(CEIL | FLOOR | ABS | EXP | LN | SQRT) LPAREN expr RPAREN						        # unaryNumeric
+    op=(CEIL | FLOOR | ABS | EXP | LN | SQRT) LPAREN expr RPAREN						        # unaryNumeric
     | op=(ROUND | TRUNC) LPAREN expr (COMMA optionalExpr)? RPAREN							    # unaryWithOptionalNumeric
     | op=(MOD | POWER | LOG | RANDOM) LPAREN left=expr COMMA right=expr RPAREN							    # binaryNumeric
 ;
