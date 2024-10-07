@@ -2,6 +2,7 @@
 // Custom:
 //  - Remove component duplication
 //  - Add distance operators (levenshtein)
+//  - rename year and month functions to getYear and getMonth
 
 // Since 2.0:
 //  - add RANDOM operator
@@ -220,15 +221,15 @@ comparisonOperators:
 
 timeOperators:
     PERIOD_INDICATOR LPAREN expr? RPAREN                                                                                                # periodAtom
-    | FILL_TIME_SERIES LPAREN expr (COMMA (SINGLE|ALL))? RPAREN                                                                         # fillTimeAtom
+    | FILL_TIME_SERIES LPAREN expr (COMMA op=(SINGLE|ALL))? RPAREN                                                                      # fillTimeAtom
     | op=(FLOW_TO_STOCK | STOCK_TO_FLOW) LPAREN expr RPAREN	                                                                            # flowAtom
     | TIMESHIFT LPAREN expr COMMA signedInteger RPAREN                                                                                  # timeShiftAtom
-    | TIME_AGG LPAREN periodIndTo=STRING_CONSTANT (COMMA periodIndFrom=(STRING_CONSTANT| OPTIONAL ))? (COMMA op=optionalExpr)? (COMMA (FIRST|LAST))? RPAREN     # timeAggAtom
+    | TIME_AGG LPAREN periodIndTo=STRING_CONSTANT (COMMA periodIndFrom=(STRING_CONSTANT| OPTIONAL ))? (COMMA op=optionalExpr)? (COMMA delim=(FIRST|LAST))? RPAREN     # timeAggAtom
     | CURRENT_DATE LPAREN RPAREN                                                                                                        # currentDateAtom
     | DATEDIFF LPAREN dateFrom=expr COMMA dateTo=expr RPAREN                    # dateDiffAtom
     | DATEADD LPAREN op=expr COMMA shiftNumber=expr COMMA periodInd=expr RPAREN # dateAddAtom
-    | YEAR_OP LPAREN expr RPAREN                                                # yearAtom
-    | MONTH_OP LPAREN expr RPAREN                                               # monthAtom
+    | GETYEAR LPAREN expr RPAREN                                                # yearAtom
+    | GETMONTH LPAREN expr RPAREN                                               # monthAtom
     | DAYOFMONTH LPAREN expr RPAREN                                             # dayOfMonthAtom
     | DAYOFYEAR LPAREN expr RPAREN                                              # dayOfYearAtom
     | DAYTOYEAR LPAREN expr RPAREN                                              # dayToYearAtom
@@ -239,15 +240,15 @@ timeOperators:
 
 //timeOperatorsComponent:
 //    PERIOD_INDICATOR LPAREN exprComponent? RPAREN                                                                                               # periodAtomComponent
-//    | FILL_TIME_SERIES LPAREN exprComponent (COMMA (SINGLE|ALL))? RPAREN                                                                        # fillTimeAtomComponent
+//    | FILL_TIME_SERIES LPAREN exprComponent (COMMA op=(SINGLE|ALL))? RPAREN                                                                      # fillTimeAtomComponent
 //    | op=(FLOW_TO_STOCK | STOCK_TO_FLOW) LPAREN exprComponent RPAREN	                                                                                    # flowAtomComponent
 //    | TIMESHIFT LPAREN exprComponent COMMA signedInteger RPAREN                                                                                 # timeShiftAtomComponent
-//    | TIME_AGG LPAREN periodIndTo=STRING_CONSTANT (COMMA periodIndFrom=(STRING_CONSTANT| OPTIONAL ))? (COMMA op=optionalExprComponent)? (COMMA (FIRST|LAST))? RPAREN    # timeAggAtomComponent
+//    | TIME_AGG LPAREN periodIndTo=STRING_CONSTANT (COMMA periodIndFrom=(STRING_CONSTANT| OPTIONAL ))? (COMMA op=optionalExprComponent)? (COMMA delim=(FIRST|LAST))? RPAREN    # timeAggAtomComponent
 //    | CURRENT_DATE LPAREN RPAREN                                                                                                                # currentDateAtomComponent
 //    | DATEDIFF LPAREN dateFrom=expr COMMA dateTo=expr RPAREN                    # dateDiffAtom
 //    | DATEADD LPAREN op=expr COMMA shiftNumber=expr COMMA periodInd=expr RPAREN # dateAddAtom
-//    | YEAR_OP LPAREN expr RPAREN                                                # yearAtom
-//    | MONTH_OP LPAREN expr RPAREN                                               # monthAtom
+//    | GETYEAR LPAREN expr RPAREN                                                # yearAtom
+//    | GETMONTH LPAREN expr RPAREN                                               # monthAtom
 //    | DAYOFMONTH LPAREN expr RPAREN                                             # dayOfMonthAtom
 //    | DAYOFYEAR LPAREN expr RPAREN                                              # datOfYearAtom
 //    | DAYTOYEAR LPAREN expr RPAREN                                              # dayToYearAtom
@@ -307,6 +308,7 @@ aggrOperatorsGrouping:
         | STDDEV_SAMP
         | VAR_POP
         | VAR_SAMP) LPAREN expr (groupingClause havingClause?)? RPAREN  #aggrDataset
+        | COUNT LPAREN RPAREN               # countAggr
 
 ;
 
@@ -324,8 +326,9 @@ aggrOperatorsGrouping:
         | FIRST_VALUE
         | LAST_VALUE)
         LPAREN expr OVER LPAREN (partition=partitionByClause? orderBy=orderByClause? windowing=windowingClause?)RPAREN RPAREN       #anSimpleFunction
-    | op=(LAG |LEAD)  LPAREN expr (COMMA offet=signedInteger(defaultValue=constant)?)?  OVER  LPAREN (partition=partitionByClause? orderBy=orderByClause)   RPAREN RPAREN    # lagOrLeadAn
+    | op=(LAG |LEAD)  LPAREN expr (COMMA offset=signedInteger(defaultValue=constant)?)?  OVER  LPAREN (partition=partitionByClause? orderBy=orderByClause)   RPAREN RPAREN    # lagOrLeadAn
     | op=RATIO_TO_REPORT LPAREN expr OVER  LPAREN (partition=partitionByClause) RPAREN RPAREN                                                                           # ratioToReportAn
+    | op=RANK LPAREN OVER  LPAREN (partition=partitionByClause? orderBy=orderByClause )RPAREN RPAREN #rankAn
 ;
 
 // anFunctionComponent:
@@ -342,7 +345,7 @@ aggrOperatorsGrouping:
 //         | FIRST_VALUE
 //         | LAST_VALUE)
 //         LPAREN exprComponent OVER LPAREN (partition=partitionByClause? orderBy=orderByClause? windowing=windowingClause?)RPAREN RPAREN       #anSimpleFunctionComponent
-//    | op=(LAG |LEAD)  LPAREN exprComponent (COMMA offet=signedInteger(defaultValue=constant)?)?  OVER  LPAREN (partition=partitionByClause? orderBy=orderByClause)   RPAREN RPAREN   # lagOrLeadAnComponent
+//    | op=(LAG |LEAD)  LPAREN exprComponent (COMMA offset=signedInteger(defaultValue=constant)?)?  OVER  LPAREN (partition=partitionByClause? orderBy=orderByClause)   RPAREN RPAREN   # lagOrLeadAnComponent
 //    | op=RANK LPAREN  OVER  LPAREN (partition=partitionByClause? orderBy=orderByClause) RPAREN RPAREN                                                                           # rankAnComponent
 //    | op=RATIO_TO_REPORT LPAREN exprComponent OVER  LPAREN (partition=partitionByClause) RPAREN RPAREN                                                                          # ratioToReportAnComponent
 //;
@@ -433,19 +436,19 @@ signedInteger:
 ;
 
 limitClauseItem:
-    INTEGER_CONSTANT PRECEDING
-    | INTEGER_CONSTANT FOLLOWING
+    INTEGER_CONSTANT dir=PRECEDING
+    | INTEGER_CONSTANT dir=FOLLOWING
     | CURRENT DATA POINT
-    | UNBOUNDED PRECEDING
-    | UNBOUNDED FOLLOWING
+    | UNBOUNDED dir=PRECEDING
+    | UNBOUNDED dir=FOLLOWING
 ;
 
 /*--------------------------------------------END ANALYTIC CLAUSE -----------------------------------------------*/
 /* ------------------------------------------------------------ GROUPING CLAUSE ------------------------------------*/
 groupingClause:
-    GROUP op=(BY | EXCEPT) componentID (COMMA componentID)*     # groupByOrExcept
-    | GROUP ALL expr                                            # groupAll
-  ;
+    GROUP op=(BY | EXCEPT) componentID (COMMA componentID)* ( TIME_AGG LPAREN TIME_UNIT (COMMA delim=(FIRST|LAST))? RPAREN )?     # groupByOrExcept
+    | GROUP ALL expr ( TIME_AGG LPAREN TIME_UNIT RPAREN )?                                                               # groupAll
+;
 
 havingClause:
   HAVING expr

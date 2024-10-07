@@ -36,8 +36,8 @@ lexer grammar VtlTokens;
   CURRENT_DATE      : 'current_date';
   DATEDIFF          : 'datediff';
   DATEADD           : 'dateadd';
-  YEAR_OP           : 'year';
-  MONTH_OP          : 'month';
+  GETYEAR           : 'getyear';
+  GETMONTH          : 'getmonth';
   DAYOFMONTH        : 'dayofmonth';
   DAYOFYEAR         : 'dayofyear';
   DAYTOYEAR         : 'daytoyear';
@@ -357,7 +357,7 @@ IDENTIFIER
     | (MONTH MINUS DAY MINUS YEAR)
     ;*/
 
-/*TIME_UNIT
+TIME_UNIT
     :
     'A'
     |'S'
@@ -366,7 +366,7 @@ IDENTIFIER
     |'W'
     |'D'
     |'T'
-    ;*/
+    ;
 
 
  /* old
