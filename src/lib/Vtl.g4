@@ -2,7 +2,6 @@
 // Custom:
 //  - Remove component duplication
 //  - Add distance operators (levenshtein)
-//  - Add random operator (optionalNumeric group)
 
 // Since 2.0:
 //  - add RANDOM operator
