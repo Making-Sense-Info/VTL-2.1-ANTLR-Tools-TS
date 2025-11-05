@@ -437,6 +437,7 @@ signedInteger:
 
 signedNumber:
   (MINUS|PLUS)?NUMBER_CONSTANT
+;
 
 limitClauseItem:
     signedInteger dir=PRECEDING
