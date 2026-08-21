@@ -12,34 +12,40 @@
 grammar Vtl;
 import VtlTokens;
 
+/* Comments are on the default token channel so the parser can attach them (leading/trailing/inline). */
+comment:
+    ML_COMMENT
+    | SL_COMMENT
+;
+
 start:
-    (statement  EOL)* EOF
+    comment* (statement EOL comment*)* EOF
 ;
 
 /* statement */
 statement:
-    varID ASSIGN expr                # temporaryAssignment
-    | varID PUT_SYMBOL expr          # persistAssignment
-    | defOperators                   # defineExpression
+    comment* varID ASSIGN expr                # temporaryAssignment
+    | comment* varID PUT_SYMBOL expr          # persistAssignment
+    | comment* defOperators                   # defineExpression
 ;
 
 /* expression */
 expr:
-    LPAREN expr RPAREN											            # parenthesisExpr
-    | functions                                                             # functionsExpression
-    | dataset=expr  QLPAREN  clause=datasetClause  QRPAREN                  # clauseExpr
-    | expr MEMBERSHIP simpleComponentId                                     # membershipExpr
-    | op=(PLUS|MINUS|NOT) right=expr                                        # unaryExpr
-    | left=expr op=(MUL|DIV) right=expr                                     # arithmeticExpr
-    | left=expr op=(PLUS|MINUS|CONCAT) right=expr                           # arithmeticExprOrConcat
-    | left=expr op=comparisonOperand  right=expr                            # comparisonExpr
-    | left=expr op=(IN|NOT_IN)(lists|valueDomainID)                         # inNotInExpr
-    | left=expr op=AND right=expr                                           # booleanExpr
-    | left=expr op=(OR|XOR) right=expr							            # booleanExpr
-    | IF  conditionalExpr=expr  THEN thenExpr=expr ELSE elseExpr=expr       # ifExpr
-    | CASE WHEN whenExpr=expr THEN thenExpr=expr (WHEN whenExpr=expr THEN thenExpr=expr)* ELSE elseExpr=expr             # caseExpr
-    | constant														        # constantExpr
-    | varID															        # varIdExpr
+    LPAREN comment* expr comment* RPAREN											            # parenthesisExpr
+    | comment* functions                                                             # functionsExpression
+    | dataset=expr comment* QLPAREN comment* clause=datasetClause comment* QRPAREN                  # clauseExpr
+    | expr comment* MEMBERSHIP comment* simpleComponentId                                     # membershipExpr
+    | op=(PLUS|MINUS|NOT) comment* right=expr                                        # unaryExpr
+    | expr comment* op=(MUL|DIV) comment* right=expr                                     # arithmeticExpr
+    | expr comment* op=(PLUS|MINUS|CONCAT) comment* right=expr                           # arithmeticExprOrConcat
+    | expr comment* op=comparisonOperand comment* right=expr                            # comparisonExpr
+    | expr comment* op=(IN|NOT_IN) comment* (lists|valueDomainID)                         # inNotInExpr
+    | expr comment* op=AND comment* right=expr                                           # booleanExpr
+    | expr comment* op=(OR|XOR) comment* right=expr							            # booleanExpr
+    | comment* IF comment* conditionalExpr=expr comment* THEN comment* thenExpr=expr comment* ELSE comment* elseExpr=expr       # ifExpr
+    | comment* CASE comment* WHEN comment* whenExpr=expr comment* THEN comment* thenExpr=expr comment* (WHEN comment* whenExpr=expr comment* THEN comment* thenExpr=expr)* comment* ELSE comment* elseExpr=expr             # caseExpr
+    | comment* constant														        # constantExpr
+    | comment* varID															        # varIdExpr
 
 
 ;
@@ -111,7 +117,7 @@ aggrClause:
 ;
 
 filterClause:
-    FILTER expr
+    FILTER comment* expr
 ;
 
 calcClause:
@@ -455,7 +461,7 @@ groupingClause:
 ;
 
 havingClause:
-  HAVING expr
+  HAVING comment* expr
   ;
 /*-------------------------------------------END GROUPING CLAUSE-----------------------------------------------------*/
 

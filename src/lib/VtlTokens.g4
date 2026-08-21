@@ -391,11 +391,12 @@ EOL
 
 ML_COMMENT
   :
-  '/*' .*? '*/' -> channel(2);
+  '/*' .*? '*/';
 
+/* Line comment: no trailing newline required (valid at end of file). */
 SL_COMMENT
   :
-  '//' ~[\r\n]*  ->channel(2);
+  '//' ~[\r\n]*;
 
 /*
 
